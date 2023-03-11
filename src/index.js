@@ -79,6 +79,21 @@ async function main () {
 
   const estimateHands = async () => {
 
-    canvasContext
+    canvasContext.clearRect(0,0, config.video.width, config.video.height)
+    resultLayer.right.innerText = ''
+    resultLayer.left.innerText = ''
+
+    const hands = await detector.estimateHands(video, {flipHorizontal:true})
+
+    for (const hand in hands) {
+      for (const keypoint of hand.keypoints) {
+
+        const name = keypoint.name.split('_')[0].toString().toLowerCase()
+        const color = landmarkcolor[name]
+
+        drawnPoints(canvasContext, keypoint.x, keypoint.y, 3, color)
+
+      }
+    }
   }
 }
