@@ -94,6 +94,50 @@ async function main () {
         drawnPoints(canvasContext, keypoint.x, keypoint.y, 3, color)
 
       }
+
+      const keypoints3D = hand.keypoints3D.map(keypoint => [keypoint.x, keypoint.y, keypoint.z])
+      const predictions = GesturesEstimator.estimate(keypoints3D, 9)
+
+      if (!predictions.gestures.length) updateDebugInfo(predictions.poseData, 'left')
+
+      if(predictions.gestures.length > 0) {
+        
+        const result = predictions.gestures.reduce(
+          (previus,current) => (previus.score > current.score) ? previus : current
+        )
+      
+        const found = gestureStrins[result.name]
+        
+        const choseHand = hand.handedness.toLowerCase()
+        updateDebugInfo(predictions.poseData, choseHand)
+        
+        if (found !== gestureStrings.dont) {
+          resultLayer[choseHand].innerText = found
+          continue;
+        }
+        checkGestureCombination(choseHand, predictions.poseData)
+      }
+    }
+    
+    setTimeout(_ => {estimateHands()}, 1000 / config.video.fps)
+  }
+
+  estimateHands()
+  console.log('Starting Predictions')
+}
+
+async function initCamera(width, height, fps) {
+
+  const constraints = {
+    audio: false,
+    video: {
+      facingMode: 'user',
+      width,
+      height,
+      frameRate: {max: fps}
     }
   }
+
+  const video = document.querySelector("#pose-video")
+  
 }
