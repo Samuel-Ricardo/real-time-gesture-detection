@@ -155,4 +155,10 @@ function drawPoint(canvasContext, x, y, r, color) {
   canvasContext.fill()
 }
 
-
+function updateDebugInfo(data, hand) {
+  const summaryTable = `#summary-${hand}`
+  for (let fingerIdx in data) {
+    document.querySelector(`${summaryTable} span#curl-${fingerIdx}`).innerHTML = data[fingerIdx][1]
+    document.querySelector(`${summaryTable} span#dir-${fingerIdx}`).innerHTML = data[fingerIdx][2]
+  }
+}
