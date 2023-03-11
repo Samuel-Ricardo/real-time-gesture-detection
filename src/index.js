@@ -139,5 +139,20 @@ async function initCamera(width, height, fps) {
   }
 
   const video = document.querySelector("#pose-video")
+    video.width = width
+    video.height = height
   
+  const stream = await navigator.mediaDevices.getUserMedia(constraints)
+  video.srcObject = stream
+
+  return new Promise( resolve => {video.onloadmetadata = () => {resovle(video)}} )
 }
+
+function drawPoint(canvasContext, x, y, r, color) {
+  canvasContext.beginPath()
+  canvasContext.arc(x, y, r, 0, 2 * Math.PI)
+  canvasContext.fillStyle = color
+  canvasContext.fill()
+}
+
+
