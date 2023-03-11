@@ -41,9 +41,9 @@ async function createDetector() {
 async function main () {
   const video = document.querySelector("#pose-video")
   const canvas = document.querySelector('#pose-canvas')
-  const ctx = canvas.getContext('2d')
+  const canvasContext = canvas.getContext('2d')
 
-  const resultPlayer = {
+  const resultLayer = {
     right: document.querySelector('#pose-result-right'),
     left: document.querySelector('#pose-result-left'),
   }
@@ -59,11 +59,26 @@ async function main () {
   const detector = await createDetector()
   console.log("mediaPose model loaded")
 
-  const pair = Set()
+  const pair = new Set()
 
   function checkGestureCombination(choseHand, poseData) {
     const addToPairIfCorrect = (choseHand) => {
-      const containsHand = poseData.some(finger => dont[choseHand])
+
+      const containsHand = poseData.some(finger => dont[choseHand].includes(finger[2]))
+      if(!containsHand) return;
+
+      pair.add(choseHand)
     }
+
+    addToPairIfCorrect(choseHand)
+    if (pair.size !== 2) return;
+
+    resultLayer.left.innerText = resultLayer.right.innerText = gestureString.dont
+    pair.clear()
+  } 
+
+  const estimateHands = async () => {
+
+    canvasContext
   }
 }
