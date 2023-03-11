@@ -162,3 +162,19 @@ function updateDebugInfo(data, hand) {
     document.querySelector(`${summaryTable} span#dir-${fingerIdx}`).innerHTML = data[fingerIdx][2]
   }
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  initCamera( config.video.width, config.video.height, config.video.fps )
+    .then( video => {
+      video.play()
+      video.addEventListener("loadeddata", event => {
+        console.log("camera is ready :D")   
+        main()
+      })
+    })
+
+  const canvas = document.querySelector("#pose-canvas")
+    canvas.width = config.video.width
+    canvas.height = config. video.height
+  console.log("Canvas Initialized :D")
+})
