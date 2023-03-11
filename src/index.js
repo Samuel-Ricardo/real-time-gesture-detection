@@ -1,3 +1,4 @@
+import { gestures } from "./gesture"
 
 const config = { video: {width: 640, height: 480, fps: 30} }
 
@@ -47,6 +48,22 @@ async function main () {
     left: document.querySelector('#pose-result-left'),
   }
 
-  ;
+  const knowGestures = [
+    fp.Gestures.VictoryGesture,
+    fp.Gestures.ThumbsUpGesture,
+    ...gestures,
+  ]
 
+  const GesturesEstimator = new fp.GesturesEstimator(knowGestures)
+
+  const detector = await createDetector()
+  console.log("mediaPose model loaded")
+
+  const pair = Set()
+
+  function checkGestureCombination(choseHand, poseData) {
+    const addToPairIfCorrect = (choseHand) => {
+      const containsHand = poseData.some(finger => dont[choseHand])
+    }
+  }
 }
