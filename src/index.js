@@ -1,4 +1,5 @@
-import { gestures } from "./gesture"
+import { gestures } from "./gesture.js"
+
 
 const config = { video: {width: 640, height: 480, fps: 30} }
 
@@ -29,48 +30,51 @@ const dont = {
 async function createDetector() {
   return window.handPoseDetection.createDetector(
     window.handPoseDetection.SupportedModels.MediaPipeHands,
-    {
-      runtime: 'mediapipe',
-      modelType: 'full',
-      maxHands: 2,
-      solutionPath: `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915`,
-    }
-  )
-}
-
-async function main () {
-  const video = document.querySelector("#pose-video")
-  const canvas = document.querySelector('#pose-canvas')
-  const canvasContext = canvas.getContext('2d')
-
-  const resultLayer = {
-    right: document.querySelector('#pose-result-right'),
-    left: document.querySelector('#pose-result-left'),
+      {
+        runtime: 'mediapipe',
+        modelType: 'full',
+        maxHands: 2,
+        solutionPath: `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915`,
+      }
+    )
   }
+  
+  async function main () {
+    const video = document.querySelector("#pose-video")
+    const canvas = document.querySelector('#pose-canvas')
+    const canvasContext = canvas.getContext('2d')
+    
+    
+    const resultLayer = {
+      right: document.querySelector('#pose-result-right'),
+      left: document.querySelector('#pose-result-left'),
+    }
+    
+    const knowGestures = [
+      fp.Gestures.VictoryGesture,
+      fp.Gestures.ThumbsUpGesture,
+      ...gestures,
+    ]
+    
+    const GesturesEstimator = new fp.GestureEstimator(knowGestures)
+    
+    const detector = await createDetector()
+    console.log("mediaPose model loaded")
+    
+    const pair = new Set()
+    
+    console.log("HIIIIIIIIIII")
 
-  const knowGestures = [
-    fp.Gestures.VictoryGesture,
-    fp.Gestures.ThumbsUpGesture,
-    ...gestures,
-  ]
+  function checkGestureCombination(chosenHand, poseData) {
+    const addToPairIfCorrect = (chosenHand) => {
 
-  const GesturesEstimator = new fp.GesturesEstimator(knowGestures)
-
-  const detector = await createDetector()
-  console.log("mediaPose model loaded")
-
-  const pair = new Set()
-
-  function checkGestureCombination(choseHand, poseData) {
-    const addToPairIfCorrect = (choseHand) => {
-
-      const containsHand = poseData.some(finger => dont[choseHand].includes(finger[2]))
+      const containsHand = poseData.some(finger => dont[chosenHand].includes(finger[2]))
       if(!containsHand) return;
 
-      pair.add(choseHand)
+      pair.add(chosenHand)
     }
 
-    addToPairIfCorrect(choseHand)
+    addToPairIfCorrect(chosenHand)
     if (pair.size !== 2) return;
 
     resultLayer.left.innerText = resultLayer.right.innerText = gestureString.dont
@@ -85,13 +89,14 @@ async function main () {
 
     const hands = await detector.estimateHands(video, {flipHorizontal:true})
 
-    for (const hand in hands) {
+    for (let hand in hands) {
+      hand = hands[hand]
       for (const keypoint of hand.keypoints) {
 
         const name = keypoint.name.split('_')[0].toString().toLowerCase()
         const color = landmarkcolor[name]
 
-        drawnPoints(canvasContext, keypoint.x, keypoint.y, 3, color)
+        drawPoint(canvasContext, keypoint.x, keypoint.y, 3, color)
 
       }
 
@@ -106,15 +111,17 @@ async function main () {
           (previus,current) => (previus.score > current.score) ? previus : current
         )
       
-        const found = gestureStrins[result.name]
+        const found = gestureStrings[result.name]
         
         const choseHand = hand.handedness.toLowerCase()
         updateDebugInfo(predictions.poseData, choseHand)
         
-        if (found !== gestureStrings.dont) {
+        console.log({found})
+
+        //if (found !== gestureStrings.dont) {
           resultLayer[choseHand].innerText = found
           continue;
-        }
+        //}
         checkGestureCombination(choseHand, predictions.poseData)
       }
     }
@@ -142,10 +149,13 @@ async function initCamera(width, height, fps) {
     video.width = width
     video.height = height
   
-  const stream = await navigator.mediaDevices.getUserMedia(constraints)
-  video.srcObject = stream
+    
+    const stream = await navigator.mediaDevices.getUserMedia(constraints)
+    video.srcObject = stream
+    
+    console.log({video})
 
-  return new Promise( resolve => {video.onloadmetadata = () => {resovle(video)}} )
+  return new Promise( resolve => {video.onloadedmetadata = () => {resolve(video)}} )
 }
 
 function drawPoint(canvasContext, x, y, r, color) {
