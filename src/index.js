@@ -37,3 +37,16 @@ async function createDetector() {
   )
 }
 
+async function main () {
+  const video = document.querySelector("#pose-video")
+  const canvas = document.querySelector('#pose-canvas')
+  const ctx = canvas.getContext('2d')
+
+  const resultPlayer = {
+    right: document.querySelector('#pose-result-right'),
+    left: document.querySelector('#pose-result-left'),
+  }
+
+  ;
+
+}
