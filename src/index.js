@@ -9,3 +9,12 @@ const landmarkcolor = {
   pinky: 'yellow',
   wirst: 'white'
 }
+
+const gestureStrings = {
+  'thumbs_up': '👍',
+  'victory': '✌🏻',
+  'rock': '✊️',
+  'paper': '🖐',
+  'scissors': '✌️',
+  'dont': '🙅'
+}
